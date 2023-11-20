@@ -4,9 +4,12 @@ import com.marklogic.mule.extension.api.DocumentAttributes;
 import org.junit.Before;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.streaming.object.CursorIterator;
+import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,7 +29,7 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
 
     @Override
     final protected String[] getConfigFiles() {
-        return new String[] {"prepare-database-flow.xml", getFlowTestFile()};
+        return new String[]{"prepare-database-flow.xml", getFlowTestFile()};
     }
 
     Message runFlowGetMessage(String flowName) {
@@ -50,6 +53,13 @@ public abstract class AbstractFlowTester extends MuleArtifactFunctionalTestCase 
 
     List<DocumentData> runFlowForDocumentDataList(String flowName) {
         return toDocumentDataList((List<Message>) runFlowGetMessage(flowName).getPayload().getValue());
+    }
+
+    List<DocumentData> runFlowForPagedDocumentData(String flowName) {
+        CursorIteratorProvider prov = (CursorIteratorProvider) runFlowGetMessage(flowName).getPayload().getValue();
+        List<DocumentData> result = new ArrayList<>();
+        prov.openCursor().forEachRemaining(message -> result.add(toDocumentData((Message) message)));
+        return result;
     }
 
     private DocumentData toDocumentData(Message message) {
