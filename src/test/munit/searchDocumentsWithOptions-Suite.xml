@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mule
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+    xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+    xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+    xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:marklogic="http://www.mulesoft.org/schema/mule/marklogic" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+		http://www.mulesoft.org/schema/mule/marklogic http://www.mulesoft.org/schema/mule/marklogic/current/mule-marklogic.xsd
+
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+  <marklogic:config configId="searchDocumentsWithOptionsMarkLogicConfig" name="searchDocumentsWithOptionsMarkLogicConfig" doc:name="searchDocumentsWithOptionsMarkLogicConfig" doc:id="9d8c042d-2297-4691-a760-e9b83d6118ff" >
+    <marklogic:connection host="localhost" port="8022" authenticationType="DIGEST" username="admin" password="admin" />
+  </marklogic:config>
+
+  <flow name="searchDocumentsWithOptionsFlow-NoQuery" doc:id="e1a051ef-36f1-4a99-82f6-9c4e7e6d4efd" >
+    <marklogic:search-documents
+        doc:name="Search Documents"
+        doc:id="0b4fedb1-8ee8-49f7-8677-aa85e05dc98c"
+        config-ref="searchDocumentsWithOptionsMarkLogicConfig"
+        collection="#[vars.collections]"
+        directory="#[vars.directory]"/>
+    <batch:job jobName="searchDocumentsWithOptionsFlow-NoQuery-Batch_Job" doc:id="531f0b21-2a36-4448-b899-27a8af537123" >
+      <batch:process-records >
+        <batch:step name="Batch_Step" doc:id="8a8d80ab-ac70-4b58-9020-b7b89e2a2b48" >
+          <logger level="INFO" doc:name="StepLogger" doc:id="555c8064-e80d-4cf1-820a-89990efa7010" message='#["Batch Step"]'/>
+          <batch:aggregator doc:name="Batch Aggregator" doc:id="33d421ba-254c-4e82-af49-c368ad452e5a" size="5">
+            <logger level="INFO" doc:name="searchDocumentsWithOptionsFlow-AggregatorLogger" doc:id="da4e07ff-6a43-4c50-98f6-979cbdb19929" message='#["Batch Aggregator"]'/>
+          </batch:aggregator>
+        </batch:step>
+      </batch:process-records>
+      <batch:on-complete >
+        <logger level="INFO" doc:name="CompleteLogger" doc:id="47229081-10d2-431b-a296-e19a4bc8aedf" message='#["Batch On Complete"]'/>
+      </batch:on-complete>
+    </batch:job>
+  </flow>
+
+  <flow name="searchDocumentsWithOptionsFlow-Query" doc:id="0fe07af3-91a1-4221-9270-8cc895b613b7" >
+    <marklogic:search-documents
+        doc:name="Search Documents"
+        doc:id="72f5cf55-a6f2-4d9f-b090-710dbce900bf"
+        config-ref="searchDocumentsWithOptionsMarkLogicConfig"
+        collection="#[vars.collections]" searchOptions="#[vars.searchOptions]">
+      <marklogic:query><![CDATA[testConstraint:3]]></marklogic:query>
+    </marklogic:search-documents>
+    <batch:job jobName="searchDocumentsWithOptionsFlow-Query-Batch_Job" doc:id="e36a43a5-0fdd-4e1d-8937-8c891b5098b8" >
+      <batch:process-records >
+        <batch:step name="Batch_Step" doc:id="f7c05d78-7a37-4c22-a1a8-593f49da4fea" >
+          <logger level="INFO" doc:name="StepLogger" doc:id="bbeec78c-0a4f-42b1-8737-d0b6b5f9a94b" message='#["Batch Step"]'/>
+          <batch:aggregator doc:name="Batch Aggregator" doc:id="ee9f2f58-518e-4e62-9018-df75a745d4e2" size="5">
+            <logger level="INFO" doc:name="searchDocumentsWithOptionsFlow-AggregatorLogger" doc:id="ba439ea0-edea-4085-8ef0-f1169331a946" message='#["Batch Aggregator"]'/>
+          </batch:aggregator>
+        </batch:step>
+      </batch:process-records>
+      <batch:on-complete >
+        <logger level="INFO" doc:name="CompleteLogger" doc:id="685733cd-6f0a-4cd8-b4b9-c11c8e80d2aa" message='#["Batch On Complete"]'/>
+      </batch:on-complete>
+    </batch:job>
+  </flow>
+
+  <flow name="searchDocumentsWithOptionsFlow-NoQuery-NoBatch" doc:id="2108b4dd-2c75-44e5-878f-20b86254eeb5" >
+    <marklogic:search-documents
+        doc:name="Search Documents"
+        doc:id="876ec928-3159-4f91-acaa-0eaec2ccfa96"
+        config-ref="searchDocumentsWithOptionsMarkLogicConfig"
+        collection="#[vars.collections]"
+        directory="#[vars.directory]"/>
+    <logger level="INFO" doc:name="Logger" doc:id="67a1d7a6-7b4c-4892-ade3-ccc0b3ecfc5b" />
+  </flow>
+
+
+  <munit:config name="searchDocumentsWithOptions-Suite.xml"/>
+
+  <munit:test description="Test" doc:id="2a23c89f-2e57-4eab-8d40-eed307612687" name="searchDocumentsWithOptionsFlow-DefaultsTest">
+    <munit:enable-flow-sources >
+      <munit:enable-flow-source value="searchDocumentsWithOptionsFlow-NoQuery" />
+    </munit:enable-flow-sources>
+    <munit:behavior>
+      <munit-tools:spy doc:id="cdd7bfde-22e3-4f28-bfac-f3dc97ec9d8a" doc:name="Spy" processor="logger">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute attributeName="message" whereValue="#[&quot;Batch Step&quot;]"/>
+        </munit-tools:with-attributes>
+        <munit-tools:before-call>
+          <logger doc:id="33522e3c-992c-41d6-847c-328d43a4af49" doc:name="Logger" level="INFO" message="#[attributes]"/>
+          <munit-tools:assert-equals actual="#[sizeOf(attributes.collections)]" doc:id="3f341462-5200-48d6-a213-d2e7ea47c77d" doc:name="Verify Collection Count" expected="#[2]"/>
+          <munit-tools:assert-that doc:name="Verify &quot;test-data&quot; in Collections array" expression="#[attributes.collections]" is="#[MunitTools::hasItem(&quot;test-data&quot;)]"/>
+          <munit-tools:assert-equals actual="#[sizeOf(attributes.permissions)]" doc:id="640b4ca3-0d18-42f9-b29b-89612779ea82" doc:name="Verify Permissions Count" expected="#[2]"/>
+
+        </munit-tools:before-call>
+      </munit-tools:spy>
+    </munit:behavior>
+    <munit:execution>
+      <set-variable value="batch-input" doc:name="Set Variable" doc:id="1b35dc35-a30f-48ea-9067-944dcfd0f05a" variableName="collections"/>
+      <flow-ref name="searchDocumentsWithOptionsFlow-NoQuery"/>
+    </munit:execution>
+    <munit:validation>
+      <munit-tools:sleep doc:id="72c506f8-7c8d-487d-986e-8cfcac73afce" doc:name="Sleep" time="20" timeUnit="SECONDS"/>
+      <munit-tools:assert-equals actual="#[payload.result.totalRecords]" doc:id="b401eb94-0f97-40fd-bad9-9da3a3f0618a" doc:name="Assert equals" expected="#[10]"/>
+      <munit-tools:verify-call doc:id="422cb937-b3f8-42d2-802b-836e3b76f067" doc:name="Verify call" processor="logger" times="2">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="da4e07ff-6a43-4c50-98f6-979cbdb19929" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+    </munit:validation>
+  </munit:test>
+
+  <munit:test description="Test" doc:id="0aff331a-d799-4311-9200-ae56f3ff7eae" name="searchDocumentsWithOptionsFlow-ConstraintWithOptionsTest">
+    <munit:enable-flow-sources >
+      <munit:enable-flow-source value="searchDocumentsWithOptionsFlow-Query" />
+    </munit:enable-flow-sources>
+    <munit:behavior>
+      <munit-tools:spy doc:id="28dea5da-c618-452a-9103-044e73e09fe5" doc:name="Spy" processor="logger">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute attributeName="message" whereValue="#[&quot;Batch Step&quot;]"/>
+        </munit-tools:with-attributes>
+        <munit-tools:before-call>
+          <logger doc:id="cf332dbf-2972-4ce7-8c1c-d4f030c2fe1a" doc:name="Logger" level="INFO" message="#[attributes]"/>
+          <munit-tools:assert-equals actual="#[sizeOf(attributes.collections)]" doc:id="b14a6e42-8ff6-48a4-ad6b-7a6ffb77e717" doc:name="Verify Collection Count" expected="#[2]"/>
+          <munit-tools:assert-that doc:name="Verify &quot;test-data&quot; in Collections array" expression="#[attributes.collections]" is="#[MunitTools::hasItem(&quot;test-data&quot;)]"/>
+          <munit-tools:assert-equals actual="#[sizeOf(attributes.permissions)]" doc:id="0dcd52c6-7c56-4db4-8e86-b1cb384b28c4" doc:name="Verify Permissions Count" expected="#[2]"/>
+        </munit-tools:before-call>
+      </munit-tools:spy>
+    </munit:behavior>
+    <munit:execution>
+      <set-variable value="batch-input" doc:name="Set Variable" doc:id="b35b9618-0141-4b9a-955f-8d867e93c347" variableName="collections"/>
+      <set-variable value="testOptions" doc:name="Set Variable" doc:id="1231fe1e-7dff-440d-a65a-2aa16100df1e" variableName="searchOptions"/>
+      <flow-ref name="searchDocumentsWithOptionsFlow-Query"/>
+    </munit:execution>
+    <munit:validation>
+      <munit-tools:sleep doc:id="ce9288eb-c387-4953-a520-5d87c62a7652" doc:name="Sleep" time="1" timeUnit="SECONDS"/>
+      <munit-tools:assert-equals actual="#[payload.result.totalRecords]" doc:id="b9cf0b7b-0ead-4770-8722-40e0543d79f2" doc:name="Assert equals" expected="#[1]"/>
+    </munit:validation>
+  </munit:test>
+
+  <munit:test description="Test" doc:id="a924da8f-e96f-4f64-9d6d-72c9751d52a8" name="searchDocumentsWithOptionsFlow-ConstraintWithoutOptionsTest">
+    <munit:enable-flow-sources >
+      <munit:enable-flow-source value="searchDocumentsWithOptionsFlow-Query" />
+    </munit:enable-flow-sources>
+    <munit:behavior>
+      <munit-tools:spy doc:id="43267de6-3bf5-4a0d-baf3-3b5cfe4c8ff7" doc:name="Spy" processor="logger">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute attributeName="message" whereValue="#[&quot;Batch Step&quot;]"/>
+        </munit-tools:with-attributes>
+        <munit-tools:before-call>
+          <logger doc:id="7db9c313-0f2f-40a0-abd5-133252eec59c" doc:name="Logger" level="INFO" message="#[attributes]"/>
+          <munit-tools:assert-equals actual="#[sizeOf(attributes.collections)]" doc:id="da844476-818e-4a87-8dea-55d61d06be64" doc:name="Verify Collection Count" expected="#[2]"/>
+          <munit-tools:assert-that doc:name="Verify &quot;test-data&quot; in Collections array" expression="#[attributes.collections]" is="#[MunitTools::hasItem(&quot;test-data&quot;)]"/>
+          <munit-tools:assert-equals actual="#[sizeOf(attributes.permissions)]" doc:id="4b04688c-cad8-45d1-8e03-23f4c2788aff" doc:name="Verify Permissions Count" expected="#[2]"/>
+        </munit-tools:before-call>
+      </munit-tools:spy>
+    </munit:behavior>
+    <munit:execution>
+      <set-variable value="batch-input" doc:name="Set Variable" doc:id="0910a0ef-8401-4eff-9e01-aa0d9ebfdfd0" variableName="collections"/>
+      <flow-ref name="searchDocumentsWithOptionsFlow-Query"/>
+    </munit:execution>
+    <munit:validation>
+      <munit-tools:sleep doc:id="0ce5a927-b0e6-45f8-8b72-d0dc25614a67" doc:name="Sleep" time="1" timeUnit="SECONDS"/>
+      <munit-tools:assert-equals actual="#[payload.result.totalRecords]" doc:id="6172a0bb-3140-4525-8a96-c15c7d790c20" doc:name="Assert equals" expected="#[0]"/>
+    </munit:validation>
+  </munit:test>
+
+  <munit:test description="Test" doc:id="d61e7fe2-8bfa-4c5b-842b-30ba79abd212" name="searchDocumentsWithOptionsFlow-DirectoryTest">
+    <munit:enable-flow-sources >
+      <munit:enable-flow-source value="searchDocumentsWithOptionsFlow-NoQuery" />
+    </munit:enable-flow-sources>
+    <munit:behavior>
+      <munit-tools:spy doc:id="8f4d543a-1cef-47c7-ba05-2686d33f2912" doc:name="Spy" processor="logger">
+        <munit-tools:with-attributes>
+          <munit-tools:with-attribute attributeName="message" whereValue="#[&quot;Batch Step&quot;]"/>
+        </munit-tools:with-attributes>
+        <munit-tools:before-call>
+          <logger doc:id="6d554868-56f5-4a63-b27e-7b78700e3257" doc:name="Logger" level="INFO" message="#[attributes]"/>
+          <munit-tools:assert-equals actual="#[sizeOf(attributes.collections)]" doc:id="90f6f5aa-aa8f-48d7-b9f5-2d3172571164" doc:name="Verify Collection Count" expected="#[2]"/>
+          <munit-tools:assert-that doc:name="Verify &quot;test-data&quot; in Collections array" expression="#[attributes.collections]" is="#[MunitTools::hasItem(&quot;test-data&quot;)]"/>
+          <munit-tools:assert-equals actual="#[sizeOf(attributes.permissions)]" doc:id="1daf1b4a-9384-4ec0-9ae6-0b3feec4768a" doc:name="Verify Permissions Count" expected="#[2]"/>
+        </munit-tools:before-call>
+      </munit-tools:spy>
+    </munit:behavior>
+    <munit:execution>
+      <set-variable value="test-data" doc:name="Set Variable" doc:id="6aa32988-4ea9-4d0e-aae1-45d7c820d3f9" variableName="collections"/>
+      <set-variable value="/batch/" doc:name="Set Variable" doc:id="d7ac5342-3122-49ff-a458-b3913cce2ba1" variableName="directory"/>
+      <flow-ref name="searchDocumentsWithOptionsFlow-NoQuery"/>
+    </munit:execution>
+    <munit:validation>
+      <munit-tools:sleep doc:id="87875fcc-4dbe-42b9-8736-1f32c0cd9536" doc:name="Sleep" time="1" timeUnit="SECONDS"/>
+      <munit-tools:assert-equals actual="#[payload.result.totalRecords]" doc:id="a30a1698-9327-4b53-859b-5ca350f46e49" doc:name="Assert equals" expected="#[10]"/>
+    </munit:validation>
+  </munit:test>
+
+  <munit:test description="Test" doc:id="05165123-68f9-47ff-8f1a-dc72db0473e5" name="searchDocumentsWithOptionsFlow-NoBatchTest">
+    <munit:enable-flow-sources >
+      <munit:enable-flow-source value="searchDocumentsWithOptionsFlow-NoQuery-NoBatch" />
+    </munit:enable-flow-sources>
+    <munit:execution>
+      <set-variable value="test-data" doc:name="Set Variable" doc:id="fb5d0e4a-e55d-4672-b327-e93f22ec8957" variableName="collections"/>
+      <set-variable value="/batch/" doc:name="Set Variable" doc:id="fda7c9c9-b77b-47fa-9f6c-e88931aaa540" variableName="directory"/>
+      <marklogic:search-documents
+          doc:name="Search Documents"
+          doc:id="d5469315-f2cc-4d02-9852-5b5330b13241"
+          config-ref="searchDocumentsWithOptionsMarkLogicConfig"
+          collection="#[vars.collections]"
+          directory="#[vars.directory]"/>
+    </munit:execution>
+    <munit:validation>
+      <munit-tools:assert-equals actual="#[sizeOf(payload)]" doc:id="4c53749b-527f-46f5-841b-f34409599515" doc:name="Assert equals" expected="#[10]" />
+    </munit:validation>
+  </munit:test>
+</mule>
